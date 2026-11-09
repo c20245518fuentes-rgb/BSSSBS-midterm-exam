@@ -57,6 +57,116 @@ class AppointmentBookingTest extends TestCase
         $this->assertDatabaseCount('billing_invoices', 1);
     }
 
+    public function test_customers_book_for_themselves_and_only_see_their_own_appointments(): void
+    {
+        $customer = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
+        $client = Client::factory()->create(['user_id' => $customer->id]);
+        $otherClient = Client::factory()->create();
+        $stylist = Stylist::factory()->create();
+        $service = Service::factory()->create();
+        $this->actingAs($customer);
+
+        $this->get(route('appointments.create'))
+            ->assertOk()
+            ->assertDontSee('name="client_id"');
+
+        $this->post(route('appointments.store'), [
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+            'appointment_datetime' => '2030-05-10 10:00:00',
+        ])->assertRedirect(route('appointments.index'));
+
+        $this->assertDatabaseHas('appointments', [
+            'client_id' => $client->id,
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+        ]);
+
+        $this->post(route('appointments.store'), [
+            'client_id' => $otherClient->id,
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+            'appointment_datetime' => '2030-05-11 10:00:00',
+        ])->assertSessionHasErrors('client_id');
+
+        $otherAppointment = Appointment::factory()->create(['client_id' => $otherClient->id]);
+
+        $this->get(route('appointments.index'))
+            ->assertOk()
+            ->assertViewHas('appointments', fn ($appointments): bool => $appointments->total() === 1
+                && $appointments->first()->client_id === $client->id
+                && $appointments->first()->id !== $otherAppointment->id);
+    }
+
+    public function test_customers_cannot_access_studio_management_actions(): void
+    {
+        $customer = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
+        Client::factory()->create(['user_id' => $customer->id]);
+        $service = Service::factory()->create();
+        $appointment = Appointment::factory()->create();
+        $invoice = BillingInvoice::factory()->create(['appointment_id' => $appointment->id]);
+        $this->actingAs($customer);
+
+        $this->get(route('services.index'))
+            ->assertOk()
+            ->assertDontSee('name="category"');
+        $this->get(route('services.create'))->assertForbidden();
+        $this->put(route('services.update', $service), [])->assertForbidden();
+        $this->put(route('appointments.update', $appointment), [])->assertForbidden();
+        $this->post(route('billing-invoices.pay', $invoice))->assertForbidden();
+    }
+
+    public function test_customers_can_view_only_their_own_profile_details(): void
+    {
+        $customer = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
+        Client::factory()->create([
+            'user_id' => $customer->id,
+            'phone' => '+639171234567',
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('profile.show'))
+            ->assertOk()
+            ->assertSee($customer->name)
+            ->assertSee($customer->email)
+            ->assertSee('+639171234567')
+            ->assertSee('My profile');
+    }
+
+    public function test_studio_and_admin_accounts_cannot_open_the_customer_profile(): void
+    {
+        foreach ([User::ROLE_STUDIO, User::ROLE_ADMIN] as $role) {
+            $this->actingAs(User::factory()->create(['role' => $role]))
+                ->get(route('profile.show'))
+                ->assertForbidden();
+        }
+    }
+
+    public function test_admins_can_manage_the_studio_and_see_appointments_in_every_status(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $statuses = [
+            Appointment::STATUS_SCHEDULED,
+            Appointment::STATUS_CANCELLED,
+            Appointment::STATUS_COMPLETED,
+        ];
+
+        foreach ($statuses as $status) {
+            Appointment::factory()->create(['status' => $status]);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('appointments.index'))
+            ->assertOk()
+            ->assertViewHas('appointments', function ($appointments) use ($statuses): bool {
+                return $appointments->total() === count($statuses)
+                    && $appointments->getCollection()->pluck('status')->sort()->values()->all()
+                        === collect($statuses)->sort()->values()->all();
+            });
+
+        $this->get(route('services.create'))->assertOk();
+    }
+
     public function test_adjacent_appointments_do_not_count_as_overlapping(): void
     {
         $client = Client::factory()->create();

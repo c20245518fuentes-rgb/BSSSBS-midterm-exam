@@ -11,21 +11,28 @@
             Back to appointments
         </a>
         <div class="mb-6">
-            <p class="text-sm font-medium text-brand">Booking desk</p>
+            <p class="text-sm font-medium text-brand">{{ $isStudio ? 'Booking desk' : 'Online booking' }}</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight">Book an appointment</h1>
-            <p class="mt-1 text-sm text-subtle">Choose the client, stylist, service, and a time that works.</p>
+            <p class="mt-1 text-sm text-subtle">{{ $isStudio ? 'Choose the client, stylist, service, and a time that works.' : 'Choose a stylist, service, and a time that works.' }}</p>
         </div>
         <form class="overflow-hidden rounded-xl border border-border bg-white shadow-soft" method="POST" action="{{ route('appointments.store') }}">
             @csrf
             <div class="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
-                <label class="block text-sm font-medium" for="client_id">Client
-                    <select class="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="client_id" name="client_id" required>
-                        <option value="">Select a client</option>
-                        @foreach ($clients as $client)
-                            <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->name }} · {{ $client->phone }}</option>
-                        @endforeach
-                    </select>
-                </label>
+                @if ($isStudio)
+                    <label class="block text-sm font-medium" for="client_id">Client
+                        <select class="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="client_id" name="client_id" required>
+                            <option value="">Select a client</option>
+                            @foreach ($clients as $client)
+                                <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->name }} · {{ $client->phone }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                @else
+                    <div class="rounded-md border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2">
+                        <p class="text-xs font-medium text-subtle">Booking for</p>
+                        <p class="mt-0.5 font-medium">{{ auth()->user()->name }}</p>
+                    </div>
+                @endif
                 <label class="block text-sm font-medium" for="stylist_id">Stylist
                     <select class="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="stylist_id" name="stylist_id" required>
                         <option value="">Select a stylist</option>

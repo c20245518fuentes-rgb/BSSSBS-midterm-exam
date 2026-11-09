@@ -4,25 +4,42 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Client;
 use App\Models\User;
+use App\Services\SalonService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
     public function create(): View
     {
-        abort_if(User::query()->exists(), 404);
-
-        return view('auth.register');
+        return view('auth.register', [
+            'isInitialSetup' => User::query()->doesntExist(),
+        ]);
     }
 
-    public function store(RegisterRequest $request): RedirectResponse
+    public function store(RegisterRequest $request, SalonService $salonService): RedirectResponse
     {
-        abort_if(User::query()->exists(), 404);
+        $user = DB::transaction(function () use ($request, $salonService): User {
+            $isInitialSetup = User::query()->doesntExist();
+            $data = $request->safe()->only(['name', 'email', 'password']);
+            $user = User::query()->create($data);
+            $user->role = $isInitialSetup ? User::ROLE_STUDIO : User::ROLE_CUSTOMER;
+            $user->save();
 
-        $user = User::query()->create($request->safe()->only(['name', 'email', 'password']));
+            if (! $isInitialSetup) {
+                Client::query()->create([
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'phone' => $salonService->cleanPhone($request->validated('phone')),
+                ]);
+            }
+
+            return $user;
+        });
 
         Auth::login($user);
         $request->session()->regenerate();

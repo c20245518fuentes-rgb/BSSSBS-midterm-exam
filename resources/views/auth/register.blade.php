@@ -13,7 +13,7 @@
             </span>
             <p class="text-sm font-medium text-brand">Welcome to Maison Studio</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight">Create your account</h1>
-            <p class="mt-2 text-sm text-subtle">Set up your studio workspace to get started.</p>
+            <p class="mt-2 text-sm text-subtle">{{ $isInitialSetup ? 'Set up your studio workspace to get started.' : 'Create an account to book and manage your appointments.' }}</p>
         </div>
         <form class="rounded-xl border border-border bg-white p-6 shadow-soft sm:p-8" method="POST" action="{{ route('register.store') }}">
             @csrf
@@ -24,6 +24,11 @@
                 <label class="block text-sm font-medium" for="email">Email address
                     <input class="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="email" type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" autocomplete="email" required>
                 </label>
+                @unless ($isInitialSetup)
+                    <label class="block text-sm font-medium" for="phone">Phone number
+                        <input class="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="phone" type="tel" name="phone" value="{{ old('phone') }}" placeholder="+63 917 123 4567" autocomplete="tel" maxlength="30" required>
+                    </label>
+                @endunless
                 <label class="block text-sm font-medium" for="password">Password
                     <input class="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="password" type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
                 </label>

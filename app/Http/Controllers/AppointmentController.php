@@ -16,12 +16,15 @@ class AppointmentController extends Controller
 {
     public function index(): View
     {
+        $user = auth()->user();
+
         return view('appointments.index', [
             'appointments' => Appointment::query()
                 ->with(['client', 'stylist', 'service', 'billingInvoice'])
+                ->when(! $user->canManageStudio(), fn ($query) => $query->where('client_id', $user->client()->firstOrFail()->id))
                 ->orderByDesc('appointment_datetime')
                 ->paginate(15),
-            'clients' => Client::query()->orderBy('name')->get(),
+            'clients' => $user->canManageStudio() ? Client::query()->orderBy('name')->get() : collect(),
             'stylists' => Stylist::query()->orderBy('name')->get(),
             'services' => Service::query()->orderBy('name')->get(),
         ]);
@@ -29,8 +32,11 @@ class AppointmentController extends Controller
 
     public function create(): View
     {
+        $canManageStudio = auth()->user()->canManageStudio();
+
         return view('appointments.create', [
-            'clients' => Client::query()->orderBy('name')->get(),
+            'isStudio' => $canManageStudio,
+            'clients' => $canManageStudio ? Client::query()->orderBy('name')->get() : collect(),
             'stylists' => Stylist::query()->orderBy('name')->get(),
             'services' => Service::query()->orderBy('name')->get(),
         ]);
@@ -38,7 +44,12 @@ class AppointmentController extends Controller
 
     public function store(StoreAppointmentRequest $request, SalonService $salonService): RedirectResponse
     {
-        $salonService->createAppointment($request->validated());
+        $data = $request->validated();
+        if (! $request->user()->canManageStudio()) {
+            $data['client_id'] = $request->user()->client()->firstOrFail()->id;
+        }
+
+        $salonService->createAppointment($data);
 
         return to_route('appointments.index')->with('success', 'Appointment booked and invoice created.');
     }

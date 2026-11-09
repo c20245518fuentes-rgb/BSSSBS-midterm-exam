@@ -69,12 +69,19 @@
                             'bg-muted text-foreground' => request()->routeIs('services.*'),
                             'text-subtle' => ! request()->routeIs('services.*'),
                         ])>Services</a>
+                        @unless (auth()->user()->canManageStudio())
+                            <a href="{{ route('profile.show') }}" @class([
+                                'rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted',
+                                'bg-muted text-foreground' => request()->routeIs('profile.*'),
+                                'text-subtle' => ! request()->routeIs('profile.*'),
+                            ])>My profile</a>
+                        @endunless
                     </nav>
 
                     <div class="flex items-center gap-3">
                         <div class="hidden text-right sm:block">
                             <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-subtle">Studio account</p>
+                            <p class="text-xs text-subtle">{{ auth()->user()->role === \App\Models\User::ROLE_ADMIN ? 'Admin account' : (auth()->user()->canManageStudio() ? 'Studio account' : 'Customer account') }}</p>
                         </div>
                         <span class="flex size-9 items-center justify-center rounded-full bg-accent text-sm font-semibold text-brand">
                             {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
@@ -92,9 +99,7 @@
                 @else
                     <div class="flex items-center gap-2">
                         <a class="rounded-md px-3 py-2 text-sm font-medium text-subtle transition-colors hover:bg-muted hover:text-foreground" href="{{ route('login') }}">Log in</a>
-                        @if (\App\Models\User::query()->doesntExist())
-                            <a class="inline-flex h-9 items-center rounded-md bg-brand px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark" href="{{ route('register') }}">Get started</a>
-                        @endif
+                        <a class="inline-flex h-9 items-center rounded-md bg-brand px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark" href="{{ route('register') }}">Get started</a>
                     </div>
                 @endauth
             </div>
@@ -111,6 +116,13 @@
                         'bg-muted text-foreground' => request()->routeIs('services.*'),
                         'text-subtle' => ! request()->routeIs('services.*'),
                     ])>Services</a>
+                    @unless (auth()->user()->canManageStudio())
+                        <a href="{{ route('profile.show') }}" @class([
+                            'rounded-md px-3 py-1.5 text-sm font-medium',
+                            'bg-muted text-foreground' => request()->routeIs('profile.*'),
+                            'text-subtle' => ! request()->routeIs('profile.*'),
+                        ])>My profile</a>
+                    @endunless
                 </nav>
             @endauth
         </header>

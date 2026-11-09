@@ -21,12 +21,18 @@ class StoreAppointmentRequest extends FormRequest
      */
     public function rules(): array
     {
+        $canManageStudio = $this->user()->canManageStudio();
+
         return [
-            'client_id' => ['required', 'integer', 'exists:clients,id'],
+            'client_id' => $canManageStudio
+                ? ['required', 'integer', 'exists:clients,id']
+                : ['prohibited'],
             'stylist_id' => ['required', 'integer', 'exists:stylists,id'],
             'service_id' => ['required', 'integer', 'exists:services,id'],
             'appointment_datetime' => ['required', 'date'],
-            'status' => ['sometimes', 'in:'.Appointment::STATUS_SCHEDULED.','.Appointment::STATUS_CANCELLED],
+            'status' => $canManageStudio
+                ? ['sometimes', 'in:'.Appointment::STATUS_SCHEDULED.','.Appointment::STATUS_CANCELLED]
+                : ['prohibited'],
         ];
     }
 

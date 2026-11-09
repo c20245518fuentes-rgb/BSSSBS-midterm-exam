@@ -13,11 +13,14 @@ class ServiceController extends Controller
 {
     public function index(): View
     {
+        $services = Service::query()->orderBy('name');
+
+        if (auth()->user()->canManageStudio()) {
+            $services->with('appointments');
+        }
+
         return view('services.index', [
-            'services' => Service::query()
-                ->with('appointments')
-                ->orderBy('name')
-                ->paginate(15),
+            'services' => $services->paginate(15),
         ]);
     }
 
