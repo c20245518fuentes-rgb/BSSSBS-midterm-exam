@@ -19,7 +19,7 @@ class AppointmentController extends Controller
     {
         $user = auth()->user();
 
-        if (! $user->is_admin) {
+        if (! $user->canManageStudio()) {
             $client = $user->client()->firstOrFail();
 
             return Inertia::render('Appointments/CustomerIndex', [
@@ -33,9 +33,10 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Index', [
             'appointments' => Appointment::query()
                 ->with(['client', 'stylist', 'service', 'billingInvoice'])
+                ->when(! $user->canManageStudio(), fn ($query) => $query->where('client_id', $user->client()->firstOrFail()->id))
                 ->orderByDesc('appointment_datetime')
                 ->paginate(15),
-            'clients' => Client::query()->orderBy('name')->get(),
+            'clients' => $user->canManageStudio() ? Client::query()->orderBy('name')->get() : collect(),
             'stylists' => Stylist::query()->orderBy('name')->get(),
             'services' => Service::query()->orderBy('name')->get(),
         ]);
@@ -43,9 +44,11 @@ class AppointmentController extends Controller
 
     public function create(): Response
     {
-        abort_if(auth()->user()->is_admin, 403);
+        $canManageStudio = auth()->user()->canManageStudio();
 
         return Inertia::render('Appointments/Create', [
+            'isStudio' => $canManageStudio,
+            'clients' => $canManageStudio ? Client::query()->orderBy('name')->get() : collect(),
             'stylists' => Stylist::query()->orderBy('name')->get(),
             'services' => Service::query()->orderBy('name')->get(),
         ]);
@@ -54,7 +57,9 @@ class AppointmentController extends Controller
     public function store(StoreAppointmentRequest $request, SalonService $salonService): RedirectResponse
     {
         $data = $request->validated();
-        $data['client_id'] = $request->user()->client()->firstOrFail()->id;
+        if (! $request->user()->canManageStudio()) {
+            $data['client_id'] = $request->user()->client()->firstOrFail()->id;
+        }
 
         $salonService->createAppointment($data);
 
@@ -66,7 +71,7 @@ class AppointmentController extends Controller
         string $id,
         SalonService $salonService,
     ): RedirectResponse {
-        abort_unless($request->user()->is_admin, 403);
+        abort_unless($request->user()->canManageStudio(), 403);
 
         $salonService->updateAppointment((int) $id, $request->validated());
 

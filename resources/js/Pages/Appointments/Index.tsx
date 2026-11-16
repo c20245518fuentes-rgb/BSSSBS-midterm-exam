@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import AppLayout from '../../Components/AppLayout';
 import { CsrfField, formatDateTime, formatMoney, Pagination } from '../../Components/FormFields';
 import type { Appointment, Client, Paginator, Service, SharedPageProps, Stylist } from '../../types';
@@ -11,14 +11,17 @@ type Props = {
 };
 
 export default function AppointmentIndex({ appointments, clients, stylists, services }: Props) {
-    const { timezone } = usePage<SharedPageProps>().props;
+    const { auth, timezone } = usePage<SharedPageProps>().props;
 
     return (
         <AppLayout title="Appointments">
-            <div className="mb-7">
-                <p className="text-sm font-medium text-brand">Studio schedule</p>
-                <h1 className="mt-1 text-3xl font-semibold tracking-tight">Appointments</h1>
-                <p className="mt-2 text-sm text-subtle">Keep your day running smoothly, one booking at a time.</p>
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p className="text-sm font-medium text-brand">Studio schedule</p>
+                    <h1 className="mt-1 text-3xl font-semibold tracking-tight">Appointments</h1>
+                    <p className="mt-2 text-sm text-subtle">Keep your day running smoothly, one booking at a time.</p>
+                </div>
+                {auth.user?.is_admin && <Link className="inline-flex h-10 items-center justify-center rounded-md bg-brand px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark" href="/appointments/create">Book appointment</Link>}
             </div>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="text-sm text-subtle">{appointments.total} {appointments.total === 1 ? 'appointment' : 'appointments'}</div>

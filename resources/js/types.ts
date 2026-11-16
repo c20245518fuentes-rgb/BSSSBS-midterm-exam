@@ -5,6 +5,12 @@ export type User = {
     is_admin: boolean;
 };
 
+export type CustomerProfile = {
+    name: string;
+    email: string;
+    client?: { phone: string } | null;
+};
+
 export type Service = {
     id: number;
     name: string;

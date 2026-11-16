@@ -1,9 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import AppLayout from '../../Components/AppLayout';
 import { CsrfField, FieldError, formatMoney } from '../../Components/FormFields';
-import type { Service, SharedPageProps, Stylist } from '../../types';
+import type { Client, Service, SharedPageProps, Stylist } from '../../types';
 
-export default function CreateAppointment({ stylists, services }: { stylists: Stylist[]; services: Service[] }) {
+export default function CreateAppointment({ stylists, services, clients, isStudio }: { stylists: Stylist[]; services: Service[]; clients: Client[]; isStudio: boolean }) {
     const { old } = usePage<SharedPageProps>().props;
 
     return (
@@ -18,6 +18,15 @@ export default function CreateAppointment({ stylists, services }: { stylists: St
                 <form action="/appointments" className="overflow-hidden rounded-xl border border-border bg-white shadow-soft" method="post">
                     <CsrfField />
                     <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-6">
+                        {isStudio && (
+                            <label className="block text-sm font-medium" htmlFor="client_id">Client
+                                <select className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.client_id ?? ''} id="client_id" name="client_id" required>
+                                    <option value="">Select a client</option>
+                                    {clients.map((client) => <option key={client.id} value={client.id}>{client.name} · {client.phone}</option>)}
+                                </select>
+                                <FieldError name="client_id" />
+                            </label>
+                        )}
                         <label className="block text-sm font-medium" htmlFor="stylist_id">Stylist
                             <select className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.stylist_id ?? ''} id="stylist_id" name="stylist_id" required>
                                 <option value="">Select a stylist</option>
@@ -36,6 +45,14 @@ export default function CreateAppointment({ stylists, services }: { stylists: St
                             <input className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.appointment_datetime ?? ''} id="appointment_datetime" name="appointment_datetime" required type="datetime-local" />
                             <FieldError name="appointment_datetime" />
                         </label>
+                        {isStudio && (
+                            <label className="block text-sm font-medium" htmlFor="status">Status
+                                <select className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.status ?? 'Scheduled'} id="status" name="status">
+                                    <option value="Scheduled">Scheduled</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                            </label>
+                        )}
                     </div>
                     <div className="mx-5 mb-5 flex items-start gap-3 rounded-lg border border-border bg-background p-4 text-sm text-subtle sm:mx-6">
                         <span aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-brand">ⓘ</span>

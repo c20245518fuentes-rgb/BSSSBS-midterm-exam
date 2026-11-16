@@ -14,7 +14,7 @@ class BillingInvoiceController extends Controller
         BillingInvoice $invoice,
         BillingInvoiceService $billingInvoiceService,
     ): RedirectResponse {
-        abort_unless($request->user()->is_admin, 403);
+        abort_unless($request->user()->canManageStudio(), 403);
 
         $billingInvoiceService->markAsPaid($invoice->id);
 

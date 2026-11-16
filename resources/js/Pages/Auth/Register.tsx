@@ -4,7 +4,7 @@ import AppLayout from '../../Components/AppLayout';
 import { CsrfField, FieldError } from '../../Components/FormFields';
 import type { SharedPageProps } from '../../types';
 
-export default function Register() {
+export default function Register({ isInitialSetup }: { isInitialSetup: boolean }) {
     const { old } = usePage<SharedPageProps>().props;
 
     return (
@@ -14,7 +14,7 @@ export default function Register() {
                     <span className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-accent text-brand text-2xl">+</span>
                     <p className="text-sm font-medium text-brand">Welcome to Maison Studio</p>
                     <h1 className="mt-1 text-2xl font-semibold tracking-tight">Create your account</h1>
-                    <p className="mt-2 text-sm text-subtle">Create an account to book and manage your appointments.</p>
+                    <p className="mt-2 text-sm text-subtle">{isInitialSetup ? 'Set up the studio administrator account.' : 'Create an account to book and manage your appointments.'}</p>
                 </div>
                 <form action="/register" className="rounded-xl border border-border bg-white p-6 shadow-soft sm:p-8" method="post">
                     <CsrfField />
@@ -27,10 +27,12 @@ export default function Register() {
                             <input autoComplete="email" className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
                             <FieldError name="email" />
                         </label>
-                        <label className="block text-sm font-medium" htmlFor="phone">Phone number
-                            <input autoComplete="tel" className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.phone ?? ''} id="phone" name="phone" placeholder="+639171234567" required type="tel" />
-                            <FieldError name="phone" />
-                        </label>
+                        {!isInitialSetup && (
+                            <label className="block text-sm font-medium" htmlFor="phone">Phone number
+                                <input autoComplete="tel" className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.phone ?? ''} id="phone" name="phone" placeholder="+639171234567" required type="tel" />
+                                <FieldError name="phone" />
+                            </label>
+                        )}
                         <label className="block text-sm font-medium" htmlFor="password">Password
                             <input autoComplete="new-password" className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" id="password" minLength={8} name="password" placeholder="At least 8 characters" required type="password" />
                             <FieldError name="password" />

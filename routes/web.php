@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BillingInvoiceController;
+use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,13 +38,22 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', [AppointmentController::class, 'index']);
+    Route::get('profile', [CustomerProfileController::class, 'show'])->name('profile.show');
 
     Route::resource('services', ServiceController::class)
-        ->only(['index', 'create', 'store', 'update']);
+        ->only(['index']);
 
     Route::resource('appointments', AppointmentController::class)
-        ->only(['index', 'create', 'store', 'update']);
+        ->only(['index', 'create', 'store']);
 
-    Route::post('billing-invoices/{invoice}/pay', [BillingInvoiceController::class, 'pay'])
-        ->name('billing-invoices.pay');
+    Route::middleware('can:manage-studio')->group(function (): void {
+        Route::resource('services', ServiceController::class)
+            ->only(['create', 'store', 'update']);
+
+        Route::resource('appointments', AppointmentController::class)
+            ->only(['update']);
+
+        Route::post('billing-invoices/{invoice}/pay', [BillingInvoiceController::class, 'pay'])
+            ->name('billing-invoices.pay');
+    });
 });

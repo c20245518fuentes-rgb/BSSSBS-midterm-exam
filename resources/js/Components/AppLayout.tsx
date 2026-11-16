@@ -33,6 +33,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                                 <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
                                     <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/appointments') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/appointments">Appointments</Link>
                                     <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/services') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/services">Services</Link>
+                                    {!user.is_admin && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/profile') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/profile">Profile</Link>}
                                 </nav>
                                 <div className="flex items-center gap-3">
                                     <div className="hidden text-right sm:block">
@@ -62,6 +63,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                         <nav aria-label="Mobile navigation" className="flex gap-1 border-t border-border/70 px-4 py-2 md:hidden">
                             <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/appointments">Appointments</Link>
                             <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/services">Services</Link>
+                            {!user.is_admin && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/profile">Profile</Link>}
                         </nav>
                     )}
                 </header>

@@ -29,13 +29,31 @@ class AuthenticationTest extends TestCase
         $user = User::query()->where('email', 'manager@example.com')->firstOrFail();
         $this->assertSame('Salon Manager', $user->name);
         $this->assertFalse($user->is_admin);
-        $this->assertSame('+639171234567', $user->client->phone);
-        $this->assertSame($user->name, $user->client->name);
+        $this->assertSame(User::ROLE_STUDIO, $user->role);
+        $this->assertDatabaseCount('clients', 0);
         $this->assertAuthenticatedAs($user);
         $this->assertTrue(Hash::check('long-password-123', $user->password));
 
         $this->post(route('logout'))->assertRedirect(route('login'));
         $this->assertGuest();
+
+        $this->post(route('register.store'), [
+            'name' => 'Jamie Customer',
+            'email' => 'jamie@example.com',
+            'phone' => '+63 (917) 123-4567',
+            'password' => 'long-password-456',
+            'password_confirmation' => 'long-password-456',
+        ])->assertRedirect(route('appointments.index'));
+
+        $customer = User::query()->where('email', 'jamie@example.com')->firstOrFail();
+        $this->assertSame(User::ROLE_CUSTOMER, $customer->role);
+        $this->assertDatabaseHas('clients', [
+            'user_id' => $customer->id,
+            'name' => 'Jamie Customer',
+            'phone' => '+639171234567',
+        ]);
+
+        $this->post(route('logout'))->assertRedirect(route('login'));
 
         $this->post(route('login.store'), [
             'email' => ' MANAGER@example.com ',
@@ -75,6 +93,27 @@ class AuthenticationTest extends TestCase
             ->assertExitCode(0);
 
         $this->assertTrue($user->fresh()->is_admin);
+        $this->assertSame(User::ROLE_ADMIN, $user->fresh()->role);
+    }
+
+    public function test_public_registration_creates_customer_accounts_after_initial_setup(): void
+    {
+        User::factory()->admin()->create();
+
+        $this->post(route('register.store'), [
+            'name' => 'Another User',
+            'email' => 'another@example.com',
+            'phone' => '09171234567',
+            'password' => 'long-password-123',
+            'password_confirmation' => 'long-password-123',
+        ])->assertRedirect(route('appointments.index'));
+
+        $user = User::query()->where('email', 'another@example.com')->firstOrFail();
+        $this->assertSame(User::ROLE_CUSTOMER, $user->role);
+        $this->assertDatabaseHas('clients', [
+            'user_id' => $user->id,
+            'phone' => '09171234567',
+        ]);
     }
 
     public function test_login_rejects_invalid_password_and_throttles_repeated_attempts(): void
