@@ -21,12 +21,16 @@ class AuthenticationTest extends TestCase
         $this->post(route('register.store'), [
             'name' => '<b>Salon Manager</b>',
             'email' => ' Manager@Example.COM ',
+            'phone' => '+63 (917) 123-4567',
             'password' => 'long-password-123',
             'password_confirmation' => 'long-password-123',
         ])->assertRedirect(route('appointments.index'));
 
         $user = User::query()->where('email', 'manager@example.com')->firstOrFail();
         $this->assertSame('Salon Manager', $user->name);
+        $this->assertFalse($user->is_admin);
+        $this->assertSame('+639171234567', $user->client->phone);
+        $this->assertSame($user->name, $user->client->name);
         $this->assertAuthenticatedAs($user);
         $this->assertTrue(Hash::check('long-password-123', $user->password));
 
@@ -42,20 +46,35 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_public_registration_closes_after_the_initial_account_is_created(): void
+    public function test_customers_can_register_after_the_initial_admin_account(): void
     {
-        User::factory()->create();
-
-        $this->get(route('register'))->assertNotFound();
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin)->post(route('logout'));
+        $this->get(route('register'))->assertOk();
 
         $this->post(route('register.store'), [
             'name' => 'Another User',
             'email' => 'another@example.com',
+            'phone' => '+639171234567',
             'password' => 'long-password-123',
             'password_confirmation' => 'long-password-123',
-        ])->assertNotFound();
+        ])->assertRedirect(route('appointments.index'));
 
-        $this->assertDatabaseCount('users', 1);
+        $customer = User::query()->where('email', 'another@example.com')->firstOrFail();
+        $this->assertFalse($customer->is_admin);
+        $this->assertSame($customer->id, $customer->client->user_id);
+        $this->assertDatabaseCount('users', 2);
+        $this->assertDatabaseCount('clients', 1);
+    }
+
+    public function test_an_existing_user_can_be_promoted_to_administrator_from_the_console(): void
+    {
+        $user = User::factory()->create();
+
+        $this->artisan('app:promote-user-to-admin', ['email' => strtoupper($user->email)])
+            ->assertExitCode(0);
+
+        $this->assertTrue($user->fresh()->is_admin);
     }
 
     public function test_login_rejects_invalid_password_and_throttles_repeated_attempts(): void

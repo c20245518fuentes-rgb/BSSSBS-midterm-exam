@@ -7,22 +7,31 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
-    public function create(): View
+    public function create(): Response
     {
-        abort_if(User::query()->exists(), 404);
-
-        return view('auth.register');
+        return Inertia::render('Auth/Register');
     }
 
     public function store(RegisterRequest $request): RedirectResponse
     {
-        abort_if(User::query()->exists(), 404);
+        $user = DB::transaction(function () use ($request): User {
+            $data = $request->safe()->only(['name', 'email', 'password']);
+            $data['is_admin'] = false;
 
-        $user = User::query()->create($request->safe()->only(['name', 'email', 'password']));
+            $user = User::query()->create($data);
+            $user->client()->create([
+                'name' => $user->name,
+                'phone' => $request->validated('phone'),
+            ]);
+
+            return $user;
+        });
 
         Auth::login($user);
         $request->session()->regenerate();

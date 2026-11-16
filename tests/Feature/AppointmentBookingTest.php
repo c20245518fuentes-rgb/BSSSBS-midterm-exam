@@ -10,6 +10,7 @@ use App\Models\Stylist;
 use App\Models\User;
 use App\Services\SalonService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AppointmentBookingTest extends TestCase
@@ -20,17 +21,16 @@ class AppointmentBookingTest extends TestCase
     {
         parent::setUp();
 
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
     }
 
     public function test_booking_creates_an_invoice_and_rejects_overlapping_stylist_slots(): void
     {
-        $client = Client::factory()->create();
+        $client = $this->signInAsCustomer();
         $stylist = Stylist::factory()->create();
         $service = Service::factory()->create(['duration_min' => 120, 'price' => 2500]);
 
         $this->post(route('appointments.store'), [
-            'client_id' => $client->id,
             'stylist_id' => $stylist->id,
             'service_id' => $service->id,
             'appointment_datetime' => '2030-05-10 10:00:00',
@@ -45,7 +45,6 @@ class AppointmentBookingTest extends TestCase
 
         $this->from(route('appointments.create'))
             ->post(route('appointments.store'), [
-                'client_id' => $client->id,
                 'stylist_id' => $stylist->id,
                 'service_id' => $service->id,
                 'appointment_datetime' => '2030-05-10 11:30:00',
@@ -59,19 +58,17 @@ class AppointmentBookingTest extends TestCase
 
     public function test_adjacent_appointments_do_not_count_as_overlapping(): void
     {
-        $client = Client::factory()->create();
+        $this->signInAsCustomer();
         $stylist = Stylist::factory()->create();
         $service = Service::factory()->create(['duration_min' => 45]);
 
         $this->post(route('appointments.store'), [
-            'client_id' => $client->id,
             'stylist_id' => $stylist->id,
             'service_id' => $service->id,
             'appointment_datetime' => '2030-05-10 10:00:00',
         ])->assertRedirect(route('appointments.index'));
 
         $this->post(route('appointments.store'), [
-            'client_id' => $client->id,
             'stylist_id' => $stylist->id,
             'service_id' => $service->id,
             'appointment_datetime' => '2030-05-10 10:45:00',
@@ -81,20 +78,116 @@ class AppointmentBookingTest extends TestCase
         $this->assertDatabaseCount('billing_invoices', 2);
     }
 
+    public function test_customer_booking_uses_their_profile_and_only_shows_their_appointments(): void
+    {
+        $customer = User::factory()->create();
+        $client = $customer->client()->create([
+            'name' => $customer->name,
+            'phone' => '+639171234567',
+        ]);
+        $otherClient = Client::factory()->create();
+        $stylist = Stylist::factory()->create();
+        $otherService = Service::factory()->create();
+        $service = Service::factory()->create();
+        Appointment::factory()->create([
+            'client_id' => $otherClient->id,
+            'stylist_id' => $stylist->id,
+            'service_id' => $otherService->id,
+            'appointment_datetime' => '2030-05-10 10:00:00',
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('appointments.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Appointments/Create')
+                ->has('stylists')
+                ->has('services'));
+
+        $this->post(route('appointments.store'), [
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+            'appointment_datetime' => '2030-05-11 10:00:00',
+        ])->assertRedirect(route('appointments.index'));
+
+        $this->assertDatabaseHas('appointments', [
+            'client_id' => $client->id,
+            'appointment_datetime' => '2030-05-11 10:00:00',
+        ]);
+
+        $this->get(route('appointments.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Appointments/CustomerIndex')
+                ->has('appointments.data', 1)
+                ->where('appointments.data.0.service.name', $service->name));
+    }
+
+    public function test_customers_cannot_manage_staff_features_or_pay_invoices(): void
+    {
+        $customer = User::factory()->create();
+        $customer->client()->create([
+            'name' => $customer->name,
+            'phone' => '+639171234567',
+        ]);
+        $appointment = Appointment::factory()->create();
+        $invoice = $appointment->billingInvoice()->create([
+            'total_amount' => 500,
+            'payment_status' => BillingInvoice::PAYMENT_UNPAID,
+        ]);
+
+        $this->actingAs($customer)
+            ->get(route('services.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Services/Catalog')
+                ->has('services'));
+
+        $this->get(route('appointments.create'))
+            ->assertInertia(fn (Assert $page) => $page->component('Appointments/Create'));
+        $this->get(route('appointments.index'))
+            ->assertInertia(fn (Assert $page) => $page->component('Appointments/CustomerIndex'));
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('appointments.create'))
+            ->assertForbidden();
+        $this->post(route('appointments.store'), [
+            'stylist_id' => $appointment->stylist_id,
+            'service_id' => $appointment->service_id,
+            'appointment_datetime' => '2030-05-10 12:00:00',
+        ])->assertForbidden();
+        $this->get(route('appointments.index'))
+            ->assertInertia(fn (Assert $page) => $page->component('Appointments/Index'));
+
+        $this->actingAs($customer);
+        $this->get(route('services.create'))->assertForbidden();
+
+        $this->put(route('appointments.update', $appointment), [
+            'client_id' => $appointment->client_id,
+            'stylist_id' => $appointment->stylist_id,
+            'service_id' => $appointment->service_id,
+            'appointment_datetime' => '2030-05-10 10:00:00',
+        ])->assertForbidden();
+
+        $this->post(route('billing-invoices.pay', $invoice))->assertForbidden();
+
+        $this->assertDatabaseHas('billing_invoices', [
+            'id' => $invoice->id,
+            'payment_status' => BillingInvoice::PAYMENT_UNPAID,
+        ]);
+    }
+
     public function test_appointment_updates_recheck_availability_and_refresh_unpaid_invoice_totals(): void
     {
-        $client = Client::factory()->create();
+        $client = $this->signInAsCustomer();
         $stylist = Stylist::factory()->create();
         $originalService = Service::factory()->create(['duration_min' => 45, 'price' => 500]);
         $newService = Service::factory()->create(['duration_min' => 60, 'price' => 1200]);
 
         $this->post(route('appointments.store'), [
-            'client_id' => $client->id,
             'stylist_id' => $stylist->id,
             'service_id' => $originalService->id,
             'appointment_datetime' => '2030-05-10 10:00:00',
         ])->assertRedirect(route('appointments.index'));
 
+        $this->actingAs(User::factory()->admin()->create());
         $appointment = Appointment::query()->firstOrFail();
         $this->put(route('appointments.update', $appointment), [
             'client_id' => $client->id,
@@ -207,5 +300,18 @@ class AppointmentBookingTest extends TestCase
         $this->assertDatabaseCount('services', 5);
         $this->assertDatabaseCount('appointments', 5);
         $this->assertDatabaseCount('billing_invoices', 5);
+    }
+
+    private function signInAsCustomer(): Client
+    {
+        $customer = User::factory()->create();
+        $client = $customer->client()->create([
+            'name' => $customer->name,
+            'phone' => fake()->unique()->numerify('+639#########'),
+        ]);
+
+        $this->actingAs($customer);
+
+        return $client;
     }
 }

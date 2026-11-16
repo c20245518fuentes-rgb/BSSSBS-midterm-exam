@@ -21,6 +21,7 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'regex:/^\+?\d{7,15}$/', 'unique:clients,phone'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
     }
@@ -35,6 +36,10 @@ class RegisterRequest extends FormRequest
 
         if (is_string($this->input('email'))) {
             $normalized['email'] = mb_strtolower(trim($this->input('email')));
+        }
+
+        if (is_string($this->input('phone'))) {
+            $normalized['phone'] = preg_replace('/[\s().-]/', '', trim($this->input('phone')));
         }
 
         $this->merge($normalized);
