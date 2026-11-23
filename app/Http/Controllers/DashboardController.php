@@ -23,8 +23,9 @@ class DashboardController extends Controller
         $monthEnd = $today->copy()->endOfMonth();
         $now = Carbon::now();
 
+        //TRANSFER THIS TO SERVICES
         $todayAppointments = Appointment::query()
-            ->select(['id', 'client_id', 'stylist_id', 'service_id', 'appointment_datetime', 'status'])
+            ->select(['id', 'client_id', 'stylist_id', 'service_id', 'appointment_datetime', 'status']) // SALA - NEED FURTHER OPTIMIZATION
             ->whereBetween('appointment_datetime', [$todayStart, $todayEnd])
             ->where('status', '!=', Appointment::STATUS_CANCELLED)
             ->with(['client', 'stylist', 'service', 'billingInvoice'])
@@ -32,7 +33,7 @@ class DashboardController extends Controller
             ->get();
 
         $workload = Stylist::query()
-            ->select(['id', 'name', 'specialization'])
+            ->select(['id', 'name', 'specialization']) // SALA - NEED FURTHER OPTIMIZATION
             ->withCount(['appointments as monthly_appointments_count' => fn ($query) => $query
                 ->whereBetween('appointment_datetime', [$monthStart, $monthEnd])
                 ->where('status', '!=', Appointment::STATUS_CANCELLED)])

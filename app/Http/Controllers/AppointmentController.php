@@ -25,7 +25,7 @@ class AppointmentController extends Controller
 
             return Inertia::render('Appointments/CustomerIndex', [
                 'appointments' => $client->appointments()
-                    ->with(['client', 'stylist', 'service', 'billingInvoice'])
+                    ->with(['client', 'stylist', 'service', 'billingInvoice']) // SALA - NEED FURTHER OPTIMIZATION
                     ->orderByDesc('appointment_datetime')
                     ->paginate(15),
             ]);
@@ -33,7 +33,7 @@ class AppointmentController extends Controller
 
         return Inertia::render('Appointments/Index', [
             'appointments' => Appointment::query()
-                ->with(['client', 'stylist', 'service', 'billingInvoice'])
+                ->with(['client', 'stylist', 'service', 'billingInvoice']) // SALA - NEED FURTHER OPTIMIZATION
                 ->orderByDesc('appointment_datetime')
                 ->paginate(15),
             'clients' => Client::query()->orderBy('name')->get(),

@@ -13,7 +13,7 @@ class CustomerProfileController extends Controller
         abort_if($request->user()->canManageStudio(), 403);
 
         return Inertia::render('Profile/Show', [
-            'user' => $request->user()->load('client'),
+            'user' => $request->user()->load('client'), // SALA - NEED FURTHER OPTIMIZATION
         ]);
     }
 }
