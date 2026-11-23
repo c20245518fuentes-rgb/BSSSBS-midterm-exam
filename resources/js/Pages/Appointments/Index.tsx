@@ -54,7 +54,7 @@ export default function AppointmentIndex({ appointments, clients, stylists, serv
                                                         <button className="inline-flex h-8 items-center rounded-md border border-border bg-white px-2.5 text-xs font-medium transition-colors hover:bg-muted" type="submit">Mark paid</button>
                                                     </form>
                                                 )}
-                                            </> : <span className="text-subtle">—</span>}
+                                            </> : <span className="text-subtle"></span>}
                                         </td>
                                         <td className="px-4 py-4 text-right">
                                             {appointment.status !== 'Completed' && (

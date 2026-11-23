@@ -23,7 +23,7 @@ export default function ServiceIndex({ services }: { services: Paginator<Service
                                 <label className="block text-xs font-medium text-subtle" htmlFor={`price-${service.id}`}>Price (₱)<input className="mt-1.5 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm font-medium text-foreground shadow-sm" defaultValue={service.price} id={`price-${service.id}`} min="0" name="price" required step="0.01" type="number" /></label>
                                 <button className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-white px-3 text-sm font-medium transition-colors hover:bg-muted sm:self-end" type="submit">Save</button>
                             </div>
-                            <div className="border-t border-border bg-background/60 px-4 py-2.5 text-xs text-subtle">{service.appointments?.length ?? 0} {(service.appointments?.length ?? 0) === 1 ? 'appointment' : 'appointments'} booked</div>
+                            <div className="border-t border-border bg-background/60 px-4 py-2.5 text-xs text-subtle">{service.appointments_count ?? 0} {(service.appointments_count ?? 0) === 1 ? 'appointment' : 'appointments'} booked</div>
                         </form>
                     </article>
                 )) : (

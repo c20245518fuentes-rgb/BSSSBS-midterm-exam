@@ -18,6 +18,7 @@ export type Service = {
     duration_min: number;
     price: number | string;
     appointments?: Appointment[];
+    appointments_count?: number;
 };
 
 export type Stylist = {

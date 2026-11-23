@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BillingInvoiceController;
 use App\Http\Controllers\CustomerProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -47,6 +48,8 @@ Route::middleware('auth')->group(function (): void {
         ->only(['index', 'create', 'store']);
 
     Route::middleware('can:manage-studio')->group(function (): void {
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
         Route::resource('services', ServiceController::class)
             ->only(['create', 'store', 'update']);
 

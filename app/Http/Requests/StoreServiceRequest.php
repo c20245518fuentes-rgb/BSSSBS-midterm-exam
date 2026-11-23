@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Service;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
@@ -35,7 +36,7 @@ class StoreServiceRequest extends FormRequest
         return [
             'category' => ['required', 'string', 'max:100'],
             'name' => ['required', 'string', 'max:150', 'unique:services,name'],
-            'duration_min' => ['required', 'integer', 'min:1', 'max:1440'],
+            'duration_min' => ['required', 'integer', 'min:1', 'max:'.Service::MAX_DURATION_MINUTES],
             'price' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
         ];
     }

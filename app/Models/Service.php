@@ -10,6 +10,8 @@ class Service extends Model
 {
     use HasFactory;
 
+    public const MAX_DURATION_MINUTES = 1440;
+
     protected $fillable = ['category', 'name', 'duration_min', 'price'];
 
     protected function casts(): array

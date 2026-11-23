@@ -165,6 +165,40 @@ class AppointmentBookingTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->component('Services/Create'));
     }
 
+    public function test_studio_dashboard_shows_totals_and_rejects_customers(): void
+    {
+        $stylist = Stylist::factory()->create();
+        $service = Service::factory()->create(['price' => 750]);
+        $todayAppointment = Appointment::factory()->create([
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+            'appointment_datetime' => now()->startOfDay()->addHours(10),
+            'status' => Appointment::STATUS_SCHEDULED,
+        ]);
+        BillingInvoice::factory()->create([
+            'appointment_id' => $todayAppointment->id,
+            'total_amount' => 750,
+            'payment_status' => BillingInvoice::PAYMENT_UNPAID,
+        ]);
+
+        $this->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Dashboard/Index')
+                ->where('metrics.today_count', 1)
+                ->where('metrics.scheduled_count', 1)
+                ->where('metrics.unpaid_amount', 750)
+                ->has('todayAppointments', 1)
+                ->has('workload', 1));
+
+        $customer = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
+        Client::factory()->create(['user_id' => $customer->id]);
+
+        $this->actingAs($customer)
+            ->get(route('dashboard'))
+            ->assertForbidden();
+    }
+
     public function test_adjacent_appointments_do_not_count_as_overlapping(): void
     {
         $this->signInAsCustomer();
@@ -185,6 +219,32 @@ class AppointmentBookingTest extends TestCase
 
         $this->assertDatabaseCount('appointments', 2);
         $this->assertDatabaseCount('billing_invoices', 2);
+    }
+
+    public function test_long_service_overlap_is_detected_across_day_boundaries(): void
+    {
+        $this->signInAsCustomer();
+        $stylist = Stylist::factory()->create();
+        $service = Service::factory()->create([
+            'duration_min' => Service::MAX_DURATION_MINUTES,
+        ]);
+
+        $this->post(route('appointments.store'), [
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+            'appointment_datetime' => '2030-05-10 10:00:00',
+        ])->assertRedirect(route('appointments.index'));
+
+        $this->from(route('appointments.create'))
+            ->post(route('appointments.store'), [
+                'stylist_id' => $stylist->id,
+                'service_id' => $service->id,
+                'appointment_datetime' => '2030-05-11 09:00:00',
+            ])
+            ->assertRedirect(route('appointments.create'))
+            ->assertSessionHasErrors('appointment_datetime');
+
+        $this->assertDatabaseCount('appointments', 1);
     }
 
     public function test_customer_booking_uses_their_profile_and_only_shows_their_appointments(): void

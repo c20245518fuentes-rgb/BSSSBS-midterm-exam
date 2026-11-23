@@ -7,14 +7,15 @@ use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Service;
 use App\Services\SalonService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ServiceController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        if (! auth()->user()->canManageStudio()) {
+        if (! $request->user()->canManageStudio()) {
             return Inertia::render('Services/Catalog', [
                 'services' => Service::query()->orderBy('name')->get(),
             ]);
@@ -22,15 +23,15 @@ class ServiceController extends Controller
 
         return Inertia::render('Services/Index', [
             'services' => Service::query()
-                ->with('appointments')
+                ->withCount('appointments')
                 ->orderBy('name')
                 ->paginate(15),
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        abort_unless(auth()->user()->canManageStudio(), 403);
+        abort_unless($request->user()->canManageStudio(), 403);
 
         return Inertia::render('Services/Create');
     }
@@ -46,12 +47,12 @@ class ServiceController extends Controller
 
     public function update(
         UpdateServiceRequest $request,
-        string $id,
+        Service $service,
         SalonService $salonService,
     ): RedirectResponse {
         abort_unless($request->user()->canManageStudio(), 403);
 
-        $salonService->updateService((int) $id, $request->validated());
+        $salonService->updateService($service, $request->validated());
 
         return to_route('services.index')->with('success', 'Service updated successfully.');
     }

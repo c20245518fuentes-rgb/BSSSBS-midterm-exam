@@ -4,7 +4,7 @@ import AppLayout from '../../Components/AppLayout';
 import { CsrfField, FieldError } from '../../Components/FormFields';
 import type { SharedPageProps } from '../../types';
 
-export default function Register({ isInitialSetup }: { isInitialSetup: boolean }) {
+    export default function Register({ isInitialSetup }: { isInitialSetup: boolean }) {
     const { old } = usePage<SharedPageProps>().props;
 
     return (

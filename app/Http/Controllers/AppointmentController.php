@@ -10,14 +10,15 @@ use App\Models\Service;
 use App\Models\Stylist;
 use App\Services\SalonService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AppointmentController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $user = auth()->user();
+        $user = $request->user();
 
         if (! $user->canManageStudio()) {
             $client = $user->client()->firstOrFail();
@@ -33,18 +34,17 @@ class AppointmentController extends Controller
         return Inertia::render('Appointments/Index', [
             'appointments' => Appointment::query()
                 ->with(['client', 'stylist', 'service', 'billingInvoice'])
-                ->when(! $user->canManageStudio(), fn ($query) => $query->where('client_id', $user->client()->firstOrFail()->id))
                 ->orderByDesc('appointment_datetime')
                 ->paginate(15),
-            'clients' => $user->canManageStudio() ? Client::query()->orderBy('name')->get() : collect(),
+            'clients' => Client::query()->orderBy('name')->get(),
             'stylists' => Stylist::query()->orderBy('name')->get(),
             'services' => Service::query()->orderBy('name')->get(),
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        $canManageStudio = auth()->user()->canManageStudio();
+        $canManageStudio = $request->user()->canManageStudio();
 
         return Inertia::render('Appointments/Create', [
             'isStudio' => $canManageStudio,

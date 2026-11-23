@@ -12,13 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_admin')->default(false);
-        });
+        if (! Schema::hasColumn('users', 'is_admin')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('is_admin')->default(false);
+            });
+        }
 
-        Schema::table('clients', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->unique()->constrained()->nullOnDelete();
-        });
+        if (! Schema::hasColumn('clients', 'user_id')) {
+            Schema::table('clients', function (Blueprint $table) {
+                $table->foreignId('user_id')->nullable()->unique()->constrained()->nullOnDelete();
+            });
+        }
 
         $firstUserId = DB::table('users')->orderBy('id')->value('id');
 
@@ -32,14 +36,18 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('clients', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropUnique(['user_id']);
-            $table->dropColumn('user_id');
-        });
+        if (Schema::hasColumn('clients', 'user_id')) {
+            Schema::table('clients', function (Blueprint $table) {
+                $table->dropForeign(['user_id']);
+                $table->dropUnique(['user_id']);
+                $table->dropColumn('user_id');
+            });
+        }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_admin');
-        });
+        if (Schema::hasColumn('users', 'is_admin')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('is_admin');
+            });
+        }
     }
 };

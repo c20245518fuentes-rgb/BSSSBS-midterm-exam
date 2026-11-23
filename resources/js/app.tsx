@@ -14,5 +14,5 @@ createInertiaApp({
 
         return (await loadPage()).default;
     },
-    title: (title) => (title ? `${title} — Maison Studio` : 'Maison Studio'),
+    title: (title) => title || 'Maison Studio',
 });

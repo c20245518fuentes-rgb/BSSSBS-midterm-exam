@@ -25,13 +25,12 @@ class SalonService
     /**
      * @param  array{category: string, name: string, duration_min: int|string, price: int|float|string}  $data
      */
-    public function updateService(int $id, array $data): Service
+    public function updateService(Service $service, array $data): Service
     {
-        return DB::transaction(function () use ($id, $data): Service {
-            $service = Service::query()->findOrFail($id);
+        return DB::transaction(function () use ($service, $data): Service {
             $service->update($this->sanitizeServiceData($data));
 
-            return $service->refresh();
+            return $service;
         });
     }
 
@@ -168,12 +167,16 @@ class SalonService
         ?int $ignoreAppointmentId = null,
     ): void {
         $endsAt = $startsAt->copy()->addMinutes($service->duration_min);
+        $earliestPossibleOverlap = $startsAt->copy()->subMinutes(Service::MAX_DURATION_MINUTES);
 
         $appointments = Appointment::query()
+            ->select(['id', 'service_id', 'appointment_datetime'])
             ->where('stylist_id', $stylist->id)
             ->where('status', '!=', Appointment::STATUS_CANCELLED)
+            ->where('appointment_datetime', '>=', $earliestPossibleOverlap)
+            ->where('appointment_datetime', '<', $endsAt)
             ->when($ignoreAppointmentId !== null, fn ($query) => $query->where('id', '!=', $ignoreAppointmentId))
-            ->with('service')
+            ->with('service:id,duration_min')
             ->get();
 
         foreach ($appointments as $existingAppointment) {

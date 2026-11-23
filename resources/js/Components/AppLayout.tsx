@@ -31,6 +31,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                         {user ? (
                             <>
                                 <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
+                                    {user.is_admin && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/dashboard') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/dashboard">Dashboard</Link>}
                                     <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/appointments') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/appointments">Appointments</Link>
                                     <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/services') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/services">Services</Link>
                                     {!user.is_admin && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/profile') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/profile">Profile</Link>}
@@ -61,6 +62,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                     </div>
                     {user && (
                         <nav aria-label="Mobile navigation" className="flex gap-1 border-t border-border/70 px-4 py-2 md:hidden">
+                            {user.is_admin && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/dashboard">Dashboard</Link>}
                             <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/appointments">Appointments</Link>
                             <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/services">Services</Link>
                             {!user.is_admin && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/profile">Profile</Link>}
