@@ -12,8 +12,17 @@ class CustomerProfileController extends Controller
     {
         abort_if($request->user()->canManageStudio(), 403);
 
+        $user = $request->user();
+        $client = $user->client()
+            ->select(['id', 'user_id', 'phone'])
+            ->first();
+
         return Inertia::render('Profile/Show', [
-            'user' => $request->user()->load('client'), // SALA - NEED FURTHER OPTIMIZATION
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'client' => $client?->only(['phone']),
+            ],
         ]);
     }
 }

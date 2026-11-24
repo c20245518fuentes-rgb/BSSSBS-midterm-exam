@@ -3,11 +3,15 @@ import AppLayout from '../../Components/AppLayout';
 import { CsrfField, formatDateTime, formatMoney, Pagination } from '../../Components/FormFields';
 import type { Appointment, Client, Paginator, Service, SharedPageProps, Stylist } from '../../types';
 
+type AppointmentRow = Omit<Appointment, 'service'> & {
+    service: Pick<Service, 'id' | 'name' | 'duration_min' | 'price'>;
+};
+
 type Props = {
-    appointments: Paginator<Appointment>;
-    clients: Client[];
-    stylists: Stylist[];
-    services: Service[];
+    appointments: Paginator<AppointmentRow>;
+    clients: Pick<Client, 'id' | 'name'>[];
+    stylists: Pick<Stylist, 'id' | 'name'>[];
+    services: Pick<Service, 'id' | 'name'>[];
 };
 
 export default function AppointmentIndex({ appointments, clients, stylists, services }: Props) {
