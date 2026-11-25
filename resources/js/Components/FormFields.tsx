@@ -10,7 +10,7 @@ export function CsrfField() {
 export function FieldError({ name }: { name: string }) {
     const message = usePage<SharedPageProps>().props.errors[name];
 
-    return message ? <span className="mt-1 block text-xs text-danger">{message}</span> : null;
+    return message ? <span className="mt-1.5 block text-xs font-medium text-danger">{message}</span> : null;
 }
 
 export function Pagination({ currentPage, lastPage, path }: { currentPage: number; lastPage: number; path: string }) {
@@ -25,7 +25,7 @@ export function Pagination({ currentPage, lastPage, path }: { currentPage: numbe
             {pages.map((page) => (
                 <Link
                     aria-current={page === currentPage ? 'page' : undefined}
-                    className={`rounded-md border px-3 py-2 text-sm ${page === currentPage ? 'border-brand bg-brand text-white' : 'border-border bg-white text-foreground hover:bg-muted'}`}
+                    className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-sm font-medium transition ${page === currentPage ? 'border-brand bg-brand text-white shadow-sm' : 'border-border bg-white text-foreground hover:bg-muted'}`}
                     href={`${path}?page=${page}`}
                     key={page}
                 >

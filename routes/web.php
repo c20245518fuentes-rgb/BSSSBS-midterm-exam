@@ -40,6 +40,8 @@ Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware('auth')->group(function (): void {
     Route::get('/', [AppointmentController::class, 'index']);
     Route::get('profile', [CustomerProfileController::class, 'show'])->name('profile.show');
+    Route::put('profile', [CustomerProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.password.update');
 
     Route::resource('services', ServiceController::class)
         ->only(['index']);

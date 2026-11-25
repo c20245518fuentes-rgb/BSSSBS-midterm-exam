@@ -5,35 +5,43 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    --color-background: #faf9f7;
-    --color-foreground: #24211f;
-    --color-muted: #f1efec;
-    --color-subtle: #77716c;
-    --color-border: #e8e4df;
-    --color-brand: #75575d;
-    --color-brand-dark: #60464b;
-    --color-accent: #f3e9e9;
-    --color-success: #eaf4ed;
-    --color-danger: #b33b37;
-    --shadow-soft: 0 12px 40px -20px rgb(48 37 32 / 18%);
+    --color-background: #f6f2ee;
+    --color-surface: #ffffff;
+    --color-foreground: #2d2524;
+    --color-muted: #f3eeea;
+    --color-subtle: #7a706c;
+    --color-border: #e7e0da;
+    --color-brand: #6f4c52;
+    --color-brand-dark: #5a3d42;
+    --color-brand-soft: #efe6e4;
+    --color-sidebar: #5b4347;
+    --color-sidebar-deep: #4a3539;
+    --color-sidebar-muted: #d9ccc8;
+    --color-accent: #c8a76a;
+    --color-success: #e8f3ec;
+    --color-danger: #b5423d;
+    --shadow-soft: 0 18px 45px -24px rgb(65 45 42 / 25%);
+    --shadow-card: 0 10px 30px -18px rgb(65 45 42 / 22%);
 }
 
 html {
-    background: #faf9f7;
+    background: #f6f2ee;
 }
 
 body {
     min-height: 100vh;
+    color: var(--color-foreground);
 }
 
 input,
 select,
+textarea,
 button {
     font: inherit;
 }
 
 input[type='checkbox'] {
-    accent-color: #75575d;
+    accent-color: #6f4c52;
 }
 
 summary {
