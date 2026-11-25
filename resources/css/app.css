@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @source '../js/**/*.tsx';
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -24,8 +25,33 @@
     --shadow-card: 0 10px 30px -18px rgb(65 45 42 / 22%);
 }
 
+:root {
+    color-scheme: light;
+}
+
+.dark {
+    color-scheme: dark;
+    --color-background: #181314;
+    --color-surface: #241c1d;
+    --color-foreground: #f3ece8;
+    --color-muted: #302627;
+    --color-subtle: #b7aaa6;
+    --color-border: #3b3031;
+    --color-brand: #c89aa2;
+    --color-brand-dark: #ddb6bd;
+    --color-brand-soft: #3a2a2d;
+    --color-sidebar: #120e0f;
+    --color-sidebar-deep: #0e0b0c;
+    --color-sidebar-muted: #b9a8a4;
+    --color-accent: #d6b87a;
+    --color-success: #24352c;
+    --color-danger: #e07a74;
+    --shadow-soft: 0 18px 45px -24px rgb(0 0 0 / 55%);
+    --shadow-card: 0 10px 30px -18px rgb(0 0 0 / 45%);
+}
+
 html {
-    background: #f6f2ee;
+    background: var(--color-background);
 }
 
 body {
@@ -41,7 +67,7 @@ button {
 }
 
 input[type='checkbox'] {
-    accent-color: #6f4c52;
+    accent-color: var(--color-brand);
 }
 
 summary {

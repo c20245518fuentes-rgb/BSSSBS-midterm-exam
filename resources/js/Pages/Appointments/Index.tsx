@@ -68,7 +68,7 @@ export default function AppointmentIndex({ appointments, clients, stylists, serv
                                                         {invoice.payment_status === 'Unpaid' && appointment.status !== 'Cancelled' && (
                                                             <form action={`/billing-invoices/${invoice.id}/pay`} className="mt-2" method="post">
                                                                 <CsrfField />
-                                                                <button className="inline-flex h-8 items-center rounded-full border border-border bg-white px-3 text-xs font-medium transition hover:bg-muted" type="submit">Mark paid</button>
+                                                                <button className="inline-flex h-8 items-center rounded-full border border-border bg-surface px-3 text-xs font-medium transition hover:bg-muted" type="submit">Mark paid</button>
                                                             </form>
                                                         )}
                                                     </>
@@ -77,26 +77,26 @@ export default function AppointmentIndex({ appointments, clients, stylists, serv
                                             <td className="px-4 py-4 text-right sm:px-6">
                                                 {appointment.status !== 'Completed' && (
                                                     <details className="relative inline-block text-left">
-                                                        <summary className="inline-flex h-9 list-none items-center rounded-full border border-border bg-white px-3 text-xs font-medium transition hover:bg-muted">Edit</summary>
-                                                        <div className="absolute right-0 z-20 mt-2 w-72 rounded-2xl border border-border bg-white p-4 text-left shadow-soft">
+                                                        <summary className="inline-flex h-9 list-none items-center rounded-full border border-border bg-surface px-3 text-xs font-medium transition hover:bg-muted">Edit</summary>
+                                                        <div className="absolute right-0 z-20 mt-2 w-72 rounded-2xl border border-border bg-surface p-4 text-left shadow-soft">
                                                             <form action={`/appointments/${appointment.id}`} method="post">
                                                                 <CsrfField /><input name="_method" type="hidden" value="PUT" />
                                                                 <p className="mb-4 text-sm font-semibold">Edit appointment</p>
                                                                 <div className="space-y-3">
                                                                     <label className="block text-xs font-medium text-subtle">Client
-                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground" defaultValue={appointment.client_id} name="client_id" required>{clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select>
+                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground" defaultValue={appointment.client_id} name="client_id" required>{clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select>
                                                                     </label>
                                                                     <label className="block text-xs font-medium text-subtle">Stylist
-                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground" defaultValue={appointment.stylist_id} name="stylist_id" required>{stylists.map((stylist) => <option key={stylist.id} value={stylist.id}>{stylist.name}</option>)}</select>
+                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground" defaultValue={appointment.stylist_id} name="stylist_id" required>{stylists.map((stylist) => <option key={stylist.id} value={stylist.id}>{stylist.name}</option>)}</select>
                                                                     </label>
                                                                     <label className="block text-xs font-medium text-subtle">Service
-                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground" defaultValue={appointment.service_id} name="service_id" required>{services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}</select>
+                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground" defaultValue={appointment.service_id} name="service_id" required>{services.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}</select>
                                                                     </label>
                                                                     <label className="block text-xs font-medium text-subtle">Date and time
-                                                                        <input className="mt-1 block h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground" defaultValue={datetime.localInput} name="appointment_datetime" required type="datetime-local" />
+                                                                        <input className="mt-1 block h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground" defaultValue={datetime.localInput} name="appointment_datetime" required type="datetime-local" />
                                                                     </label>
                                                                     <label className="block text-xs font-medium text-subtle">Status
-                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground" defaultValue={appointment.status} name="status" required><option value="Scheduled">Scheduled</option><option value="Cancelled">Cancelled</option></select>
+                                                                        <select className="mt-1 block h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground" defaultValue={appointment.status} name="status" required><option value="Scheduled">Scheduled</option><option value="Cancelled">Cancelled</option></select>
                                                                     </label>
                                                                 </div>
                                                                 <button className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-xl bg-brand px-3 text-sm font-medium text-white transition hover:bg-brand-dark" type="submit">Save changes</button>

@@ -25,7 +25,7 @@ export function Pagination({ currentPage, lastPage, path }: { currentPage: numbe
             {pages.map((page) => (
                 <Link
                     aria-current={page === currentPage ? 'page' : undefined}
-                    className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-sm font-medium transition ${page === currentPage ? 'border-brand bg-brand text-white shadow-sm' : 'border-border bg-white text-foreground hover:bg-muted'}`}
+                    className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-sm font-medium transition ${page === currentPage ? 'border-brand bg-brand text-white shadow-sm' : 'border-border bg-surface text-foreground hover:bg-muted'}`}
                     href={`${path}?page=${page}`}
                     key={page}
                 >

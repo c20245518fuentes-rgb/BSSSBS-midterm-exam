@@ -1,14 +1,51 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import type { PropsWithChildren } from 'react';
+import { useEffect, useState, type PropsWithChildren } from 'react';
 import type { SharedPageProps } from '../types';
 
 type AppLayoutProps = PropsWithChildren<{ title: string }>;
 
 type NavItem = { href: string; label: string; icon: string; match: (path: string) => boolean; show?: boolean };
 
+type ThemeMode = 'light' | 'dark';
+
+function useThemeMode() {
+    const [theme, setTheme] = useState<ThemeMode>('light');
+
+    useEffect(() => {
+        setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }, []);
+
+    const toggleTheme = () => {
+        const next: ThemeMode = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+        document.documentElement.classList.toggle('dark', next === 'dark');
+        try {
+            localStorage.setItem('theme', next);
+        } catch {}
+        setTheme(next);
+    };
+
+    return { theme, toggleTheme };
+}
+
+function ThemeToggleButton({ theme, onToggle, className = '' }: { theme: ThemeMode; onToggle: () => void; className?: string }) {
+    const dark = theme === 'dark';
+    return (
+        <button
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-sm text-subtle shadow-sm transition hover:bg-muted hover:text-foreground ${className}`}
+            onClick={onToggle}
+            title={dark ? 'Light mode' : 'Dark mode'}
+            type="button"
+        >
+            <span aria-hidden="true">{dark ? '☀' : '☾'}</span>
+        </button>
+    );
+}
+
 export default function AppLayout({ children, title }: AppLayoutProps) {
     const { auth, errors, flash } = usePage<SharedPageProps>().props;
     const user = auth.user;
+    const { theme, toggleTheme } = useThemeMode();
     const messages = Object.values(errors).flatMap((message) => (Array.isArray(message) ? message : [message]));
     const successMessage = flash.success ?? flash.status;
     const path = typeof window !== 'undefined' ? window.location.pathname : '';
@@ -27,7 +64,8 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                             </span>
                         </Link>
                         <div className="flex items-center gap-2">
-                            <Link className="rounded-full px-4 py-2 text-sm font-medium text-subtle transition hover:bg-white hover:text-foreground" href="/login">Log in</Link>
+                            <ThemeToggleButton onToggle={toggleTheme} theme={theme} />
+                            <Link className="rounded-full px-4 py-2 text-sm font-medium text-subtle transition hover:bg-surface hover:text-foreground" href="/login">Log in</Link>
                             <Link className="inline-flex h-10 items-center rounded-full bg-brand px-4 text-sm font-medium text-white shadow-card transition hover:bg-brand-dark" href="/register">Create account</Link>
                         </div>
                     </header>
@@ -52,10 +90,10 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
         <>
             <Head title={title} />
             <div className="min-h-screen bg-background lg:flex">
-                <aside className="hidden w-[270px] shrink-0 flex-col bg-sidebar text-white lg:flex lg:sticky lg:top-0 lg:h-screen">
+                <aside className="hidden w-[270px] shrink-0 flex-col bg-sidebar text-white lg:sticky lg:top-0 lg:flex lg:h-screen">
                     <div className="px-6 py-6">
                         <Link className="flex items-center gap-3" href={user.can_manage_studio ? '/dashboard' : '/appointments'}>
-                            <span className="flex size-11 items-center justify-center rounded-2xl bg-white/12 text-lg">♡</span>
+                            <span className="flex size-11 items-center justify-center rounded-2xl bg-surface/12 text-lg">♡</span>
                             <span className="leading-tight">
                                 <span className="block text-[15px] font-semibold tracking-tight">Maison Studio</span>
                                 <span className="block text-[10px] tracking-[0.22em] text-sidebar-muted">BEAUTY &amp; WELLNESS</span>
@@ -67,11 +105,11 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                             const active = item.match(path);
                             return (
                                 <Link
-                                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${active ? 'bg-white/14 text-white shadow-inner' : 'text-sidebar-muted hover:bg-white/8 hover:text-white'}`}
+                                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${active ? 'bg-surface/14 text-white shadow-inner' : 'text-sidebar-muted hover:bg-surface/8 hover:text-white'}`}
                                     href={item.href}
                                     key={item.href}
                                 >
-                                    <span className={`flex size-7 items-center justify-center rounded-lg text-xs ${active ? 'bg-white/15' : 'bg-white/5'}`}>{item.icon}</span>
+                                    <span className={`flex size-7 items-center justify-center rounded-lg text-xs ${active ? 'bg-surface/15' : 'bg-surface/5'}`}>{item.icon}</span>
                                     {item.label}
                                 </Link>
                             );
@@ -88,8 +126,8 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                                 </Link>
                             )}
                         </div>
-                        <button className="mt-3 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-sidebar-muted transition hover:bg-white/8 hover:text-white" onClick={() => router.post('/logout')} type="button">
-                            <span className="flex size-7 items-center justify-center rounded-lg bg-white/5 text-xs">↪</span>
+                        <button className="mt-3 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-sidebar-muted transition hover:bg-surface/8 hover:text-white" onClick={() => router.post('/logout')} type="button">
+                            <span className="flex size-7 items-center justify-center rounded-lg bg-surface/5 text-xs">↪</span>
                             Log out
                         </button>
                     </div>
@@ -102,26 +140,23 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                                 <span className="flex size-9 items-center justify-center rounded-xl bg-brand text-white">♡</span>
                                 <span className="truncate text-sm font-semibold">Maison Studio</span>
                             </div>
-                            <div className="hidden min-w-0 items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm text-subtle shadow-sm sm:flex sm:w-full sm:max-w-md">
-                                <span aria-hidden="true">⌕</span>
-                                <span className="truncate">Search appointments, services, or clients</span>
-                            </div>
                             <div className="ml-auto flex items-center gap-3">
+                                <ThemeToggleButton onToggle={toggleTheme} theme={theme} />
                                 <div className="hidden text-right sm:block">
                                     <p className="text-sm font-semibold text-foreground">{user.name}</p>
                                     <p className="text-xs text-subtle">{user.can_manage_studio ? 'Studio administrator' : 'Customer account'}</p>
                                 </div>
-                                <span className="flex size-10 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand ring-2 ring-white shadow-sm">
+                                <span className="flex size-10 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand ring-2 ring-surface shadow-sm">
                                     {user.name.slice(0, 1).toUpperCase()}
                                 </span>
-                                <button className="inline-flex h-9 items-center rounded-full border border-border bg-white px-3 text-sm font-medium text-subtle transition hover:bg-muted hover:text-foreground lg:hidden" onClick={() => router.post('/logout')} type="button">Log out</button>
+                                <button className="inline-flex h-9 items-center rounded-full border border-border bg-surface px-3 text-sm font-medium text-subtle transition hover:bg-muted hover:text-foreground lg:hidden" onClick={() => router.post('/logout')} type="button">Log out</button>
                             </div>
                         </div>
                         <nav aria-label="Mobile navigation" className="flex gap-1 overflow-x-auto px-4 pb-3 lg:hidden sm:px-6">
                             {nav.map((item) => {
                                 const active = item.match(path);
                                 return (
-                                    <Link className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium ${active ? 'bg-brand text-white' : 'bg-white text-subtle border border-border'}`} href={item.href} key={item.href}>
+                                    <Link className={`whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-medium ${active ? 'border-brand bg-brand text-white' : 'border-border bg-surface text-subtle'}`} href={item.href} key={item.href}>
                                         {item.label}
                                     </Link>
                                 );
@@ -143,7 +178,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
 function Alert({ kind, children }: { kind: 'success' | 'error'; children: string | string[] }) {
     if (kind === 'success') {
         return (
-            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-[#d8e7dc] bg-success px-4 py-3 text-sm text-[#2f5a3b] shadow-sm" role="status">
+            <div className="mb-6 flex items-start gap-3 rounded-2xl border border-border bg-success px-4 py-3 text-sm text-foreground shadow-sm" role="status">
                 <span aria-hidden="true">✓</span>
                 <span>{children as string}</span>
             </div>
@@ -152,9 +187,9 @@ function Alert({ kind, children }: { kind: 'success' | 'error'; children: string
 
     const list = children as string[];
     return (
-        <div className="mb-6 rounded-2xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm" role="alert">
-            <p className="font-medium">Please check the following:</p>
-            <ul className="mt-1 list-inside list-disc space-y-0.5">{list.map((message, index) => <li key={`${index}-${message}`}>{message}</li>)}</ul>
+        <div className="mb-6 rounded-2xl border border-red-300/50 bg-red-500/10 px-4 py-3 text-sm text-foreground shadow-sm" role="alert">
+            <p className="font-medium text-danger">Please check the following:</p>
+            <ul className="mt-1 list-inside list-disc space-y-0.5 text-subtle">{list.map((message, index) => <li key={`${index}-${message}`}>{message}</li>)}</ul>
         </div>
     );
 }

@@ -17,7 +17,7 @@ export default function ForgotPassword() {
                 <form action="/forgot-password" className="rounded-3xl border border-border bg-surface p-6 shadow-card sm:p-8" method="post">
                     <CsrfField />
                     <label className="block text-sm font-medium text-foreground" htmlFor="email">Email address
-                        <input autoComplete="email" autoFocus className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
+                        <input autoComplete="email" autoFocus className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
                         <FieldError name="email" />
                     </label>
                     <button className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-medium text-white shadow-sm transition hover:bg-brand-dark" type="submit">Send reset link</button>

@@ -29,7 +29,7 @@ export default function Login() {
                         <CsrfField />
                         <div className="space-y-5">
                             <label className="block text-sm font-medium text-foreground" htmlFor="email">Email address
-                                <input autoComplete="email" autoFocus className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
+                                <input autoComplete="email" autoFocus className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
                                 <FieldError name="email" />
                             </label>
                             <div>
@@ -37,7 +37,7 @@ export default function Login() {
                                     <label className="text-sm font-medium text-foreground" htmlFor="password">Password</label>
                                     <Link className="text-xs font-medium text-brand hover:underline" href="/forgot-password">Forgot password?</Link>
                                 </div>
-                                <input autoComplete="current-password" className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" id="password" name="password" placeholder="Enter your password" required type="password" />
+                                <input autoComplete="current-password" className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" id="password" name="password" placeholder="Enter your password" required type="password" />
                                 <FieldError name="password" />
                             </div>
                             <label className="flex cursor-pointer items-center gap-2.5 text-sm text-subtle">

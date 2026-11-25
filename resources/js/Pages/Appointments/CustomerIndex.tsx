@@ -23,12 +23,12 @@ export default function CustomerIndex({ appointments }: { appointments: Paginato
                             <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Hello, {name.split(' ')[0]}.</h1>
                             <p className="mt-3 max-w-xl text-sm leading-7 text-white/80">Your beauty appointments, services, and profile details are all here. Ready for your next visit?</p>
                             <div className="mt-5 flex flex-wrap gap-3">
-                                <Link className="inline-flex h-11 items-center justify-center rounded-xl bg-white px-5 text-sm font-medium text-[#5f4549] shadow-sm transition hover:bg-brand-soft" href="/appointments/create">Book an appointment</Link>
-                                <Link className="inline-flex h-11 items-center justify-center rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/15" href="/services">Browse services</Link>
+                                <Link className="inline-flex h-11 items-center justify-center rounded-xl bg-surface px-5 text-sm font-medium text-[#5f4549] shadow-sm transition hover:bg-brand-soft" href="/appointments/create">Book an appointment</Link>
+                                <Link className="inline-flex h-11 items-center justify-center rounded-xl border border-white/25 bg-surface/10 px-5 text-sm font-medium text-white transition hover:bg-surface/15" href="/services">Browse services</Link>
                             </div>
                         </div>
                     </div>
-                    <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-white/10 blur-3xl" />
+                    <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-surface/10 blur-3xl" />
                 </section>
 
                 <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -52,7 +52,7 @@ export default function CustomerIndex({ appointments }: { appointments: Paginato
                             const invoice = appointment.billing_invoice ?? appointment.billingInvoice;
 
                             return (
-                                <article className="grid gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm sm:grid-cols-[1fr_auto] sm:items-center sm:p-5" key={appointment.id}>
+                                <article className="grid gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:grid-cols-[1fr_auto] sm:items-center sm:p-5" key={appointment.id}>
                                     <div className="flex items-start gap-4">
                                         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-soft text-brand">✦</div>
                                         <div>

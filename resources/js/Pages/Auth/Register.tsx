@@ -26,25 +26,25 @@ export default function Register({ isInitialSetup }: { isInitialSetup: boolean }
                         <CsrfField />
                         <div className="space-y-4">
                             <label className="block text-sm font-medium text-foreground" htmlFor="name">Full name
-                                <input autoComplete="name" autoFocus className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.name ?? ''} id="name" maxLength={255} name="name" placeholder="Your name" required />
+                                <input autoComplete="name" autoFocus className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.name ?? ''} id="name" maxLength={255} name="name" placeholder="Your name" required />
                                 <FieldError name="name" />
                             </label>
                             <label className="block text-sm font-medium text-foreground" htmlFor="email">Email address
-                                <input autoComplete="email" className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
+                                <input autoComplete="email" className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.email ?? ''} id="email" name="email" placeholder="you@example.com" required type="email" />
                                 <FieldError name="email" />
                             </label>
                             {!isInitialSetup && (
                                 <label className="block text-sm font-medium text-foreground" htmlFor="phone">Phone number
-                                    <input autoComplete="tel" className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.phone ?? ''} id="phone" inputMode="tel" maxLength={13} minLength={11} name="phone" placeholder="09171234567" required type="tel" />
+                                    <input autoComplete="tel" className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" defaultValue={old.phone ?? ''} id="phone" inputMode="tel" maxLength={13} minLength={11} name="phone" placeholder="09171234567" required type="tel" />
                                     <FieldError name="phone" />
                                 </label>
                             )}
                             <label className="block text-sm font-medium text-foreground" htmlFor="password">Password
-                                <input autoComplete="new-password" className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" id="password" minLength={8} name="password" placeholder="At least 8 characters" required type="password" />
+                                <input autoComplete="new-password" className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" id="password" minLength={8} name="password" placeholder="At least 8 characters" required type="password" />
                                 <FieldError name="password" />
                             </label>
                             <label className="block text-sm font-medium text-foreground" htmlFor="password_confirmation">Confirm password
-                                <input autoComplete="new-password" className="mt-2 block h-11 w-full rounded-xl border border-border bg-white px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" id="password_confirmation" minLength={8} name="password_confirmation" placeholder="Re-enter your password" required type="password" />
+                                <input autoComplete="new-password" className="mt-2 block h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/10" id="password_confirmation" minLength={8} name="password_confirmation" placeholder="Re-enter your password" required type="password" />
                             </label>
                             <button className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-brand px-4 text-sm font-medium text-white shadow-sm transition hover:bg-brand-dark" type="submit">Create account</button>
                         </div>
