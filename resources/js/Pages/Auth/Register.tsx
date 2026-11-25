@@ -29,7 +29,7 @@ import type { SharedPageProps } from '../../types';
                         </label>
                         {!isInitialSetup && (
                             <label className="block text-sm font-medium" htmlFor="phone">Phone number
-                                <input autoComplete="tel" className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.phone ?? ''} id="phone" name="phone" placeholder="+639171234567" required type="tel" />
+                                <input autoComplete="tel" className="mt-2 block h-10 w-full rounded-md border border-border bg-white px-3 text-sm shadow-sm placeholder:text-subtle/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15" defaultValue={old.phone ?? ''} id="phone" inputMode="tel" maxLength={13} minLength={11} name="phone" placeholder="09171234567" required type="tel" />
                                 <FieldError name="phone" />
                             </label>
                         )}

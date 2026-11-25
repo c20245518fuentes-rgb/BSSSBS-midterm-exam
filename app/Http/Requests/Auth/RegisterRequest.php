@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'phone' => $isInitialSetup
                 ? ['nullable', 'string', 'max:30']
-                : ['required', 'string', 'max:30', 'regex:/^\+?\d{7,15}$/', 'unique:clients,phone'],
+                : ['required', 'string', 'max:13', 'regex:/^\+?\d{11,12}$/', 'unique:clients,phone'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
     }
@@ -58,7 +58,7 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'phone.regex' => 'Enter a valid phone number with 7 to 15 digits.',
+            'phone.regex' => 'Enter a valid Philippine phone number with 11 to 12 digits (e.g. 09171234567 or +639171234567).',
             'phone.unique' => 'This phone number is already connected to a client account.',
         ];
     }

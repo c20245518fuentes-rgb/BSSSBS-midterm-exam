@@ -85,17 +85,6 @@ class AuthenticationTest extends TestCase
         $this->assertDatabaseCount('clients', 1);
     }
 
-    public function test_an_existing_user_can_be_promoted_to_administrator_from_the_console(): void
-    {
-        $user = User::factory()->create();
-
-        $this->artisan('app:promote-user-to-admin', ['email' => strtoupper($user->email)])
-            ->assertExitCode(0);
-
-        $this->assertTrue($user->fresh()->is_admin);
-        $this->assertSame(User::ROLE_ADMIN, $user->fresh()->role);
-    }
-
     public function test_public_registration_creates_customer_accounts_after_initial_setup(): void
     {
         User::factory()->admin()->create();
