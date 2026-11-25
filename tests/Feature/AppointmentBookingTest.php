@@ -8,7 +8,8 @@ use App\Models\Client;
 use App\Models\Service;
 use App\Models\Stylist;
 use App\Models\User;
-use App\Services\SalonService;
+use App\Services\ClientService;
+use App\Services\ServiceCatalogService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -403,16 +404,18 @@ class AppointmentBookingTest extends TestCase
         $this->assertNotNull($invoice->fresh()->paid_at);
     }
 
-    public function test_service_titles_and_client_phone_numbers_are_cleaned_by_the_domain_service(): void
+    public function test_service_titles_and_client_phone_numbers_are_cleaned_by_the_domain_services(): void
     {
-        $salonService = app(SalonService::class);
-        $service = $salonService->createService([
+        $serviceCatalogService = app(ServiceCatalogService::class);
+        $clientService = app(ClientService::class);
+
+        $service = $serviceCatalogService->createService([
             'category' => '<i>hair</i>',
             'name' => '  <b>hAiR cOlOr</b> ',
             'duration_min' => 45,
             'price' => '500.009',
         ]);
-        $client = $salonService->createClient([
+        $client = $clientService->createClient([
             'name' => '  <b>Jamie Test</b> ',
             'phone' => ' +63 (917) 123-4567 ',
         ]);

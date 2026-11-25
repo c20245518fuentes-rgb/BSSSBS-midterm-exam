@@ -31,15 +31,15 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                         {user ? (
                             <>
                                 <nav aria-label="Main navigation" className="hidden items-center gap-1 md:flex">
-                                    {user.is_admin && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/dashboard') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/dashboard">Dashboard</Link>}
+                                    {user.can_manage_studio && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/dashboard') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/dashboard">Dashboard</Link>}
                                     <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/appointments') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/appointments">Appointments</Link>
                                     <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/services') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/services">Services</Link>
-                                    {!user.is_admin && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/profile') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/profile">Profile</Link>}
+                                    {!user.can_manage_studio && <Link className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted ${window.location.pathname.startsWith('/profile') ? 'bg-muted text-foreground' : 'text-subtle'}`} href="/profile">Profile</Link>}
                                 </nav>
                                 <div className="flex items-center gap-3">
                                     <div className="hidden text-right sm:block">
                                         <p className="text-sm font-medium">{user.name}</p>
-                                        <p className="text-xs text-subtle">{user.is_admin ? 'Studio administrator' : 'Customer account'}</p>
+                                        <p className="text-xs text-subtle">{user.can_manage_studio ? 'Studio administrator' : 'Customer account'}</p>
                                     </div>
                                     <span className="flex size-9 items-center justify-center rounded-full bg-accent text-sm font-semibold text-brand">
                                         {user.name.slice(0, 1).toUpperCase()}
@@ -62,10 +62,10 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                     </div>
                     {user && (
                         <nav aria-label="Mobile navigation" className="flex gap-1 border-t border-border/70 px-4 py-2 md:hidden">
-                            {user.is_admin && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/dashboard">Dashboard</Link>}
+                            {user.can_manage_studio && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/dashboard">Dashboard</Link>}
                             <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/appointments">Appointments</Link>
                             <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/services">Services</Link>
-                            {!user.is_admin && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/profile">Profile</Link>}
+                            {!user.can_manage_studio && <Link className="rounded-md px-3 py-1.5 text-sm font-medium text-subtle" href="/profile">Profile</Link>}
                         </nav>
                     )}
                 </header>

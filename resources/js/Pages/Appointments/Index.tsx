@@ -21,7 +21,7 @@ export default function AppointmentIndex({ appointments, clients, stylists, serv
                     <h1 className="mt-1 text-3xl font-semibold tracking-tight">Appointments</h1>
                     <p className="mt-2 text-sm text-subtle">Keep your day running smoothly, one booking at a time.</p>
                 </div>
-                {auth.user?.is_admin && <Link className="inline-flex h-10 items-center justify-center rounded-md bg-brand px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark" href="/appointments/create">Book appointment</Link>}
+                {auth.user?.can_manage_studio && <Link className="inline-flex h-10 items-center justify-center rounded-md bg-brand px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-dark" href="/appointments/create">Book appointment</Link>}
             </div>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="text-sm text-subtle">{appointments.total} {appointments.total === 1 ? 'appointment' : 'appointments'}</div>

@@ -4,73 +4,14 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\BillingInvoice;
-use App\Models\Client;
 use App\Models\Service;
 use App\Models\Stylist;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class SalonService
+class AppointmentService
 {
-    /**
-     * @param  array{category: string, name: string, duration_min: int|string, price: int|float|string}  $data
-     */
-    public function createService(array $data): Service
-    {
-        return DB::transaction(fn (): Service => Service::query()->create($this->sanitizeServiceData($data)));
-    }
-
-    /**
-     * @param  array{category: string, name: string, duration_min: int|string, price: int|float|string}  $data
-     */
-    public function updateService(Service $service, array $data): Service
-    {
-        return DB::transaction(function () use ($service, $data): Service {
-            $service->update($this->sanitizeServiceData($data));
-
-            return $service;
-        });
-    }
-
-    /**
-     * @param  array{name: string, phone: string}  $data
-     */
-    public function createClient(array $data): Client
-    {
-        return DB::transaction(fn (): Client => Client::query()->create([
-            'name' => $this->cleanText($data['name']),
-            'phone' => $this->cleanPhone($data['phone']),
-        ]));
-    }
-
-    /**
-     * @param  array{name: string, phone: string}  $data
-     */
-    public function updateClient(int $id, array $data): Client
-    {
-        return DB::transaction(function () use ($id, $data): Client {
-            $client = Client::query()->findOrFail($id);
-            $client->update([
-                'name' => $this->cleanText($data['name']),
-                'phone' => $this->cleanPhone($data['phone']),
-            ]);
-
-            return $client->refresh();
-        });
-    }
-
-    /**
-     * Removes formatting while preserving an optional leading international plus.
-     */
-    public function cleanPhone(string $phone): string
-    {
-        $digits = preg_replace('/\D+/', '', trim($phone)) ?? '';
-
-        return str_starts_with(trim($phone), '+') ? '+'.$digits : $digits;
-    }
-
     /**
      * @param  array{client_id: int|string, stylist_id: int|string, service_id: int|string, appointment_datetime: string, status?: string}  $data
      */
@@ -139,25 +80,6 @@ class SalonService
 
             return $appointment->refresh()->load(['client', 'stylist', 'service', 'billingInvoice']);
         });
-    }
-
-    /**
-     * @param  array{category: string, name: string, duration_min: int|string, price: int|float|string}  $data
-     * @return array{category: string, name: string, duration_min: int, price: float}
-     */
-    private function sanitizeServiceData(array $data): array
-    {
-        return [
-            'category' => Str::title($this->cleanText($data['category'])),
-            'name' => Str::title($this->cleanText($data['name'])),
-            'duration_min' => (int) $data['duration_min'],
-            'price' => round((float) $data['price'], 2),
-        ];
-    }
-
-    private function cleanText(string $value): string
-    {
-        return trim(strip_tags($value));
     }
 
     private function ensureStylistIsAvailable(

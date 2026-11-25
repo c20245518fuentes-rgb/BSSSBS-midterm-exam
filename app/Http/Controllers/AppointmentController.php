@@ -8,7 +8,7 @@ use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Service;
 use App\Models\Stylist;
-use App\Services\SalonService;
+use App\Services\AppointmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -54,14 +54,14 @@ class AppointmentController extends Controller
         ]);
     }
 
-    public function store(StoreAppointmentRequest $request, SalonService $salonService): RedirectResponse
+    public function store(StoreAppointmentRequest $request, AppointmentService $appointmentService): RedirectResponse
     {
         $data = $request->validated();
         if (! $request->user()->canManageStudio()) {
             $data['client_id'] = $request->user()->client()->firstOrFail()->id;
         }
 
-        $salonService->createAppointment($data);
+        $appointmentService->createAppointment($data);
 
         return to_route('appointments.index')->with('success', 'Appointment booked and invoice created.');
     }
@@ -69,11 +69,11 @@ class AppointmentController extends Controller
     public function update(
         UpdateAppointmentRequest $request,
         string $id,
-        SalonService $salonService,
+        AppointmentService $appointmentService,
     ): RedirectResponse {
         abort_unless($request->user()->canManageStudio(), 403);
 
-        $salonService->updateAppointment((int) $id, $request->validated());
+        $appointmentService->updateAppointment((int) $id, $request->validated());
 
         return to_route('appointments.index')->with('success', 'Appointment updated successfully.');
     }

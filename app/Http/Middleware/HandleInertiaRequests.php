@@ -21,14 +21,14 @@ class HandleInertiaRequests extends Middleware
                     'id' => $request->user()->id,
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
-                    'is_admin' => $request->user()->canManageStudio(),
+                    'can_manage_studio' => $request->user()->canManageStudio(),
                 ],
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'status' => fn () => $request->session()->get('status'),
             ],
-            'old' => fn () => $request->session()->getOldInput(),
+            'old' => fn () => $request->session()->get('_old_input', []),
             'timezone' => config('app.timezone'),
         ];
     }

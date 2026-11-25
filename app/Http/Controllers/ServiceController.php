@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Service;
-use App\Services\SalonService;
+use App\Services\ServiceCatalogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -36,11 +36,11 @@ class ServiceController extends Controller
         return Inertia::render('Services/Create');
     }
 
-    public function store(StoreServiceRequest $request, SalonService $salonService): RedirectResponse
+    public function store(StoreServiceRequest $request, ServiceCatalogService $serviceCatalogService): RedirectResponse
     {
         abort_unless($request->user()->canManageStudio(), 403);
 
-        $salonService->createService($request->validated());
+        $serviceCatalogService->createService($request->validated());
 
         return to_route('services.index')->with('success', 'Service created successfully.');
     }
@@ -48,11 +48,11 @@ class ServiceController extends Controller
     public function update(
         UpdateServiceRequest $request,
         Service $service,
-        SalonService $salonService,
+        ServiceCatalogService $serviceCatalogService,
     ): RedirectResponse {
         abort_unless($request->user()->canManageStudio(), 403);
 
-        $salonService->updateService($service, $request->validated());
+        $serviceCatalogService->updateService($service, $request->validated());
 
         return to_route('services.index')->with('success', 'Service updated successfully.');
     }
