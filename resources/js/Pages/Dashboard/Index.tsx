@@ -2,7 +2,13 @@ import { Link } from '@inertiajs/react';
 import AppLayout from '../../Components/AppLayout';
 import { formatDateTime, formatMoney } from '../../Components/FormFields';
 import { usePage } from '@inertiajs/react';
-import type { Appointment, SharedPageProps, Stylist } from '../../types';
+import type { Appointment, Client, Service, SharedPageProps, Stylist } from '../../types';
+
+type TodayAppointment = Pick<Appointment, 'id' | 'appointment_datetime'> & {
+    client: Pick<Client, 'name'>;
+    stylist: Pick<Stylist, 'name'>;
+    service: Pick<Service, 'name'>;
+};
 
 type Props = {
     metrics: {
@@ -11,7 +17,7 @@ type Props = {
         unpaid_amount: number;
         monthly_paid_amount: number;
     };
-    todayAppointments: Appointment[];
+    todayAppointments: TodayAppointment[];
     workload: (Stylist & { monthly_appointments_count: number })[];
 };
 

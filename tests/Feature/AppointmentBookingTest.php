@@ -160,7 +160,21 @@ class AppointmentBookingTest extends TestCase
             ->get(route('appointments.index'))
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Appointments/Index')
-                ->has('appointments.data', count($statuses)));
+                ->has('appointments.data', count($statuses))
+                ->has('appointments.data.0.client.phone')
+                ->has('appointments.data.0.stylist.specialization')
+                ->has('appointments.data.0.service.duration_min')
+                ->has('clients.0.name')
+                ->has('stylists.0.name')
+                ->has('services.0.name'));
+
+        $this->get(route('appointments.create'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Appointments/Create')
+                ->has('clients.0.phone')
+                ->has('stylists.0.specialization')
+                ->has('services.0.duration_min')
+                ->has('services.0.price'));
 
         $this->get(route('services.create'))
             ->assertInertia(fn (Assert $page) => $page->component('Services/Create'));
@@ -168,13 +182,22 @@ class AppointmentBookingTest extends TestCase
 
     public function test_studio_dashboard_shows_totals_and_rejects_customers(): void
     {
+        $this->travelTo(now()->startOfDay()->addHours(8));
+
         $stylist = Stylist::factory()->create();
         $service = Service::factory()->create(['price' => 750]);
+        $appointmentDatetime = now()->startOfDay()->addHours(10);
         $todayAppointment = Appointment::factory()->create([
             'stylist_id' => $stylist->id,
             'service_id' => $service->id,
-            'appointment_datetime' => now()->startOfDay()->addHours(10),
+            'appointment_datetime' => $appointmentDatetime,
             'status' => Appointment::STATUS_SCHEDULED,
+        ]);
+        Appointment::factory()->create([
+            'stylist_id' => $stylist->id,
+            'service_id' => $service->id,
+            'appointment_datetime' => $appointmentDatetime->copy()->addHour(),
+            'status' => Appointment::STATUS_CANCELLED,
         ]);
         BillingInvoice::factory()->create([
             'appointment_id' => $todayAppointment->id,
@@ -190,7 +213,12 @@ class AppointmentBookingTest extends TestCase
                 ->where('metrics.scheduled_count', 1)
                 ->where('metrics.unpaid_amount', 750)
                 ->has('todayAppointments', 1)
-                ->has('workload', 1));
+                ->where('todayAppointments.0.id', $todayAppointment->id)
+                ->where('todayAppointments.0.client.name', $todayAppointment->client->name)
+                ->where('todayAppointments.0.stylist.name', $stylist->name)
+                ->where('todayAppointments.0.service.name', $service->name)
+                ->has('workload', 1)
+                ->where('workload.0.monthly_appointments_count', 1));
 
         $customer = User::factory()->create(['role' => User::ROLE_CUSTOMER]);
         Client::factory()->create(['user_id' => $customer->id]);
@@ -380,6 +408,7 @@ class AppointmentBookingTest extends TestCase
             'total_amount' => '1200.00',
             'payment_status' => BillingInvoice::PAYMENT_UNPAID,
         ]);
+
     }
 
     public function test_payment_marks_its_appointment_as_completed(): void
@@ -464,6 +493,14 @@ class AppointmentBookingTest extends TestCase
             'duration_min' => 90,
             'price' => '950.00',
         ]);
+
+        $this->get(route('services.index'))
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Services/Index')
+                ->where('services.data.0.category', 'Hair')
+                ->where('services.data.0.duration_min', 90)
+                ->where('services.data.0.price', '950.00')
+                ->where('services.data.0.appointments_count', 0));
     }
 
     public function test_database_seeder_loads_the_sample_normalized_salon_records(): void

@@ -25,7 +25,12 @@ class AppointmentController extends Controller
 
             return Inertia::render('Appointments/CustomerIndex', [
                 'appointments' => $client->appointments()
-                    ->with(['client', 'stylist', 'service', 'billingInvoice'])
+                    ->select(['id', 'client_id', 'stylist_id', 'service_id', 'appointment_datetime', 'status'])
+                    ->with([
+                        'stylist:id,name',
+                        'service:id,name',
+                        'billingInvoice:id,appointment_id,total_amount,payment_status',
+                    ])
                     ->orderByDesc('appointment_datetime')
                     ->paginate(15),
             ]);
@@ -33,12 +38,18 @@ class AppointmentController extends Controller
 
         return Inertia::render('Appointments/Index', [
             'appointments' => Appointment::query()
-                ->with(['client', 'stylist', 'service', 'billingInvoice'])
+                ->select(['id', 'client_id', 'stylist_id', 'service_id', 'appointment_datetime', 'status'])
+                ->with([
+                    'client:id,name,phone',
+                    'stylist:id,name,specialization',
+                    'service:id,name,duration_min,price',
+                    'billingInvoice:id,appointment_id,total_amount,payment_status',
+                ])
                 ->orderByDesc('appointment_datetime')
                 ->paginate(15),
-            'clients' => Client::query()->orderBy('name')->get(),
-            'stylists' => Stylist::query()->orderBy('name')->get(),
-            'services' => Service::query()->orderBy('name')->get(),
+            'clients' => Client::query()->select(['id', 'name'])->orderBy('name')->get(),
+            'stylists' => Stylist::query()->select(['id', 'name'])->orderBy('name')->get(),
+            'services' => Service::query()->select(['id', 'name'])->orderBy('name')->get(),
         ]);
     }
 
@@ -48,9 +59,17 @@ class AppointmentController extends Controller
 
         return Inertia::render('Appointments/Create', [
             'isStudio' => $canManageStudio,
-            'clients' => $canManageStudio ? Client::query()->orderBy('name')->get() : collect(),
-            'stylists' => Stylist::query()->orderBy('name')->get(),
-            'services' => Service::query()->orderBy('name')->get(),
+            'clients' => $canManageStudio
+                ? Client::query()->select(['id', 'name', 'phone'])->orderBy('name')->get()
+                : collect(),
+            'stylists' => Stylist::query()
+                ->select(['id', 'name', 'specialization'])
+                ->orderBy('name')
+                ->get(),
+            'services' => Service::query()
+                ->select(['id', 'name', 'duration_min', 'price'])
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 

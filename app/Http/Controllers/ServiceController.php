@@ -17,12 +17,16 @@ class ServiceController extends Controller
     {
         if (! $request->user()->canManageStudio()) {
             return Inertia::render('Services/Catalog', [
-                'services' => Service::query()->orderBy('name')->get(),
+                'services' => Service::query()
+                    ->select(['id', 'category', 'name', 'duration_min', 'price'])
+                    ->orderBy('name')
+                    ->get(),
             ]);
         }
 
         return Inertia::render('Services/Index', [
             'services' => Service::query()
+                ->select(['id', 'category', 'name', 'duration_min', 'price'])
                 ->withCount('appointments')
                 ->orderBy('name')
                 ->paginate(15),

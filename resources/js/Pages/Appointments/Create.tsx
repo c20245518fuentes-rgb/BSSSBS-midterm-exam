@@ -3,7 +3,14 @@ import AppLayout from '../../Components/AppLayout';
 import { CsrfField, FieldError, formatMoney } from '../../Components/FormFields';
 import type { Client, Service, SharedPageProps, Stylist } from '../../types';
 
-export default function CreateAppointment({ stylists, services, clients, isStudio }: { stylists: Stylist[]; services: Service[]; clients: Client[]; isStudio: boolean }) {
+type Props = {
+    stylists: Pick<Stylist, 'id' | 'name' | 'specialization'>[];
+    services: Pick<Service, 'id' | 'name' | 'duration_min' | 'price'>[];
+    clients: Pick<Client, 'id' | 'name' | 'phone'>[];
+    isStudio: boolean;
+};
+
+export default function CreateAppointment({ stylists, services, clients, isStudio }: Props) {
     const { old } = usePage<SharedPageProps>().props;
 
     return (

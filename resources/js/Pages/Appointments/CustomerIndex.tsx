@@ -2,9 +2,14 @@ import { Link } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import AppLayout from '../../Components/AppLayout';
 import { formatDateTime, formatMoney, Pagination } from '../../Components/FormFields';
-import type { Appointment, Paginator, SharedPageProps } from '../../types';
+import type { Appointment, Paginator, Service, SharedPageProps, Stylist } from '../../types';
 
-export default function CustomerIndex({ appointments }: { appointments: Paginator<Appointment> }) {
+type CustomerAppointment = Omit<Appointment, 'client' | 'stylist' | 'service'> & {
+    stylist: Pick<Stylist, 'id' | 'name'>;
+    service: Pick<Service, 'id' | 'name'>;
+};
+
+export default function CustomerIndex({ appointments }: { appointments: Paginator<CustomerAppointment> }) {
     const { timezone } = usePage<SharedPageProps>().props;
 
     return (
